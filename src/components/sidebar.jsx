@@ -15,7 +15,7 @@ const Sidebar = () => {
   const pathname = usePathname();
 
   return (
-    <aside className="flex flex-col w-64 h-screen bg-white py-8 px-4 shadow-md">
+    <aside className="flex flex-col w-64 h-screen bg-white py-8 px-4">
       {/* Navigation */}
       <nav className="flex flex-col gap-2">
         {navItems.map((item) => {

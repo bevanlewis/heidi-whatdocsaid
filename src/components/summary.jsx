@@ -145,7 +145,7 @@ const Summary = () => {
     <Box>
       <Text
         color="#64748B"
-        fontFamily="var(--font-family-Font-1, Geist)"
+        fontFamily="font-roboto"
         fontSize="2rem"
         fontWeight={500}
         lineHeight="2.5rem"
@@ -155,37 +155,22 @@ const Summary = () => {
       </Text>
       <Text
         color="#64748B"
-        fontFamily="Inter"
+        fontFamily="font-roboto"
         fontSize="1rem"
         fontWeight={300}
         lineHeight="1.375rem"
         width="57.25rem"
       >
-        {
-          "It's your personal guide, helping you easily track treatments, understand complex medical information, and stay connected with your care team."
-        }
+        {"It's your personal guide, helping you easily track treatments, understand complex medical information, and stay connected with your care team."}
       </Text>
-      <Text fontWeight="bold" mt={4} mb={2}>
+      <Text fontWeight="bold" mt={4} mb={2} fontFamily="font-roboto">
         Summary of your consult:
       </Text>
 
       <Box bg="#FFFFFF" borderRadius="lg" p={4} mb={4} position="relative">
         {/* Show loading or error */}
-        {loading && <Text>Loading summary...</Text>}
-        {error && <Text color="red.500">{error}</Text>}
-
-        {/* Chat area */}
-        <Box
-          bg="#F3F3F3"
-          borderRadius="lg"
-          p={4}
-          mb={4}
-          maxW="600px"
-          mx="auto"
-          boxShadow="sm"
-          mt={6}
-          minHeight="200px"
-        >
+        {loading && <Text fontFamily="Roboto">Loading summary...</Text>}
+        {error && <Text color="red.500" fontFamily="Roboto">{error}</Text>}
           {messages.map((msg, idx) => (
             <Box
               key={idx}
@@ -198,9 +183,9 @@ const Summary = () => {
                 py={2}
                 borderRadius="lg"
                 maxW="70%"
-                bg={msg.role === "user" ? "#3182ce" : "#e2e8f0"}
-                color={msg.role === "user" ? "#fff" : "#222"}
-                fontFamily="Inter"
+                bg={msg.role === "user" ? "#F3F3F3" : "#FFFFFF"}
+                color={msg.role === "user" ? "#000000" : "#020817"}
+                fontFamily="font-roboto"
                 fontSize="1rem"
                 fontWeight={400}
                 whiteSpace="pre-wrap"
@@ -214,11 +199,10 @@ const Summary = () => {
 
         {/* Chat input bar */}
         <Box
-          position="sticky"
           bottom={0}
           left={0}
           width="100%"
-          bg="#F3F3F3"
+          bg="#FFFFFF"
           borderRadius="lg"
           display="flex"
           alignItems="center"
@@ -249,9 +233,9 @@ const Summary = () => {
               placeholder="Ask WhatDocSaid about your consultation"
               variant="unstyled"
               fontSize="1rem"
-              fontFamily="Inter"
+              fontFamily="font-roboto"
               color="#64748B"
-              _placeholder={{ color: "#64748B" }}
+              _placeholder={{ color: "#64748B", fontFamily: "font-roboto" }}
               pl="2.5rem"
               height="2.5rem"
               isDisabled={sending || loading}
@@ -270,6 +254,7 @@ const Summary = () => {
             _hover={inputValue === "" ? { bg: "#000000" } : { bg: "#222" }}
             _disabled={{ bg: "#000000", cursor: "not-allowed", opacity: 0.5 }}
             onClick={handleSend}
+            fontFamily="font-roboto"
           >
             <img
               src="/arrow.svg"
@@ -281,7 +266,6 @@ const Summary = () => {
           </Button>
         </Box>
       </Box>
-    </Box>
   );
 };
 
