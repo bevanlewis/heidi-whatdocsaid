@@ -60,7 +60,7 @@ const Summary = () => {
             prompt: note,
             model: "llama-3.1-8b-instant",
             systemInstruction:
-              "Summarize the following medical consult note in bullet points, with each bullet point separated by a #. Do not include any other text or formatting.",
+              "Summarize the following medical consult note in bullet points in a way that is easy to understand for a person without a medical background, with each bullet point separated by a #. Do not include any other text or formatting. ",
           }),
         });
         const groqData = await groqRes.json();
