@@ -25,6 +25,7 @@ const Summary = () => {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [sending, setSending] = useState(false);
+  const [summaryBullets, setSummaryBullets] = useState([]);
   const chatEndRef = useRef(null);
 
   // Scroll to bottom when messages change
@@ -51,7 +52,7 @@ const Summary = () => {
         const transcript = await heidiApi.getTranscriptHeidiTestAuth(sessionId);
         setTranscript(transcript);
 
-        // 2. First Groq call: Summarize the data
+        // 2. First Groq call: Summarize the data as bullet points (array of strings)
         const groqRes = await fetch("/api/groq", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -59,15 +60,35 @@ const Summary = () => {
             prompt: note,
             model: "llama-3.1-8b-instant",
             systemInstruction:
-              "Summarize the following medical consult note in 2 lines.",
+              "Summarize the following medical consult note as bullet points. Return ONLY an array of strings, each string being a bullet point. Do not return any prose or explanation.",
           }),
         });
         const groqData = await groqRes.json();
         if (!groqRes.ok)
           throw new Error(groqData.error || "Groq summary failed");
 
+        // Try to parse the response as JSON array, fallback to splitting lines if needed
+        let bullets = [];
+        try {
+          // If Groq returns a JSON array
+          bullets = JSON.parse(groqData.answer);
+          if (!Array.isArray(bullets)) throw new Error();
+        } catch {
+          // Fallback: split by newlines and remove dashes/bullets
+          bullets = groqData.answer
+            .split(/\n|\r/)
+            .map((line) => line.replace(/^[-*•]\s*/, "").trim())
+            .filter((line) => line.length > 0);
+        }
+        setSummaryBullets(bullets);
+
         // 3. Set up initial chat messages: summary as assistant, then user can chat
-        setMessages([{ role: "assistant", content: groqData.answer }]);
+        setMessages([
+          {
+            role: "assistant",
+            content: "How can I help you with your consultation?",
+          },
+        ]);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -179,6 +200,24 @@ const Summary = () => {
             {error}
           </Text>
         )}
+        {/* Show summary as bullet points */}
+        {!loading && !error && summaryBullets.length > 0 && (
+          <Box as="ul" pl={6} mb={6}>
+            {summaryBullets.map((point, idx) => (
+              <li
+                key={idx}
+                style={{
+                  marginBottom: "0.5rem",
+                  fontFamily: "Roboto",
+                  color: "#222",
+                  fontSize: "1rem",
+                }}
+              >
+                {point}
+              </li>
+            ))}
+          </Box>
+        )}
         {messages.map((msg, idx) => (
           <Box
             key={idx}
@@ -203,75 +242,75 @@ const Summary = () => {
           </Box>
         ))}
         <div ref={chatEndRef} />
-      </Box>
 
-      {/* Chat input bar */}
-      <Box
-        bottom={0}
-        left={0}
-        width="100%"
-        bg="#FFFFFF"
-        borderRadius="lg"
-        display="flex"
-        alignItems="center"
-        px={4}
-        py={3}
-        mt={8}
-        zIndex={1}
-      >
-        <InputGroup alignItems="center">
-          <InputLeftElement
-            pointerEvents="none"
-            display="flex"
-            alignItems="center"
-            height="100%"
+        {/* Chat input bar */}
+        <Box
+          bottom={0}
+          left={0}
+          width="100%"
+          bg="#FFFFFF"
+          borderRadius="lg"
+          display="flex"
+          alignItems="center"
+          px={4}
+          py={3}
+          mt={8}
+          zIndex={1}
+        >
+          <InputGroup alignItems="center">
+            <InputLeftElement
+              pointerEvents="none"
+              display="flex"
+              alignItems="center"
+              height="100%"
+            >
+              <Image
+                src="/chat.svg"
+                alt="Chat"
+                width={24}
+                height={24}
+                style={{ display: "block" }}
+              />
+            </InputLeftElement>
+            <Input
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask WhatDocSaid about your consultation"
+              variant="unstyled"
+              fontSize="1rem"
+              className="font-roboto"
+              color="#64748B"
+              _placeholder={{ color: "#64748B", className: "font-roboto" }}
+              pl="2.5rem"
+              height="2.5rem"
+              isDisabled={sending || loading}
+            />
+          </InputGroup>
+          <Button
+            bg="#000000"
+            borderRadius="md"
+            fontWeight={500}
+            px={3}
+            py={2}
+            minW={0}
+            height="2.5rem"
+            ml={2}
+            isDisabled={inputValue === "" || sending || loading}
+            _hover={inputValue === "" ? { bg: "#000000" } : { bg: "#222" }}
+            _disabled={{ bg: "#000000", cursor: "not-allowed", opacity: 0.5 }}
+            onClick={handleSend}
+            className="font-roboto"
           >
-            <Image
-              src="/chat.svg"
-              alt="Chat"
-              width={24}
-              height={24}
+            <img
+              src="/arrow.svg"
+              alt="Send"
+              width={16}
+              height={16}
               style={{ display: "block" }}
             />
-          </InputLeftElement>
-          <Input
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask WhatDocSaid about your consultation"
-            variant="unstyled"
-            fontSize="1rem"
-            className="font-roboto"
-            color="#64748B"
-            _placeholder={{ color: "#64748B", className: "font-roboto" }}
-            pl="2.5rem"
-            height="2.5rem"
-            isDisabled={sending || loading}
-          />
-        </InputGroup>
-        <Button
-          bg="#000000"
-          borderRadius="md"
-          fontWeight={500}
-          px={3}
-          py={2}
-          minW={0}
-          height="2.5rem"
-          ml={2}
-          isDisabled={inputValue === "" || sending || loading}
-          _hover={inputValue === "" ? { bg: "#000000" } : { bg: "#222" }}
-          _disabled={{ bg: "#000000", cursor: "not-allowed", opacity: 0.5 }}
-          onClick={handleSend}
-          className="font-roboto"
-        >
-          <img
-            src="/arrow.svg"
-            alt="Send"
-            width={16}
-            height={16}
-            style={{ display: "block" }}
-          />
-        </Button>
+          </Button>
+        </Box>
       </Box>
     </Box>
   );
