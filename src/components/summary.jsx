@@ -145,21 +145,21 @@ const Summary = () => {
     <Box>
       <Text
         color="#64748B"
-        fontFamily="font-roboto"
         fontSize="2rem"
         fontWeight={500}
         lineHeight="2.5rem"
         letterSpacing="-0.04688rem"
+        className="font-roboto"
       >
         {`We're here to help you with your health journey`}
       </Text>
       <Text
         color="#64748B"
-        fontFamily="font-roboto"
         fontSize="1rem"
         fontWeight={300}
         lineHeight="1.375rem"
         width="57.25rem"
+        className="font-roboto"
       >
         {"It's your personal guide, helping you easily track treatments, understand complex medical information, and stay connected with your care team."}
       </Text>
@@ -185,10 +185,10 @@ const Summary = () => {
                 maxW="70%"
                 bg={msg.role === "user" ? "#F3F3F3" : "#FFFFFF"}
                 color={msg.role === "user" ? "#000000" : "#020817"}
-                fontFamily="font-roboto"
                 fontSize="1rem"
                 fontWeight={400}
                 whiteSpace="pre-wrap"
+                className="font-roboto"
               >
                 {msg.content}
               </Box>
@@ -233,9 +233,9 @@ const Summary = () => {
               placeholder="Ask WhatDocSaid about your consultation"
               variant="unstyled"
               fontSize="1rem"
-              fontFamily="font-roboto"
+              className="font-roboto"
               color="#64748B"
-              _placeholder={{ color: "#64748B", fontFamily: "font-roboto" }}
+              _placeholder={{ color: "#64748B", className: "font-roboto" }}
               pl="2.5rem"
               height="2.5rem"
               isDisabled={sending || loading}
@@ -254,7 +254,7 @@ const Summary = () => {
             _hover={inputValue === "" ? { bg: "#000000" } : { bg: "#222" }}
             _disabled={{ bg: "#000000", cursor: "not-allowed", opacity: 0.5 }}
             onClick={handleSend}
-            fontFamily="font-roboto"
+            className="font-roboto"
           >
             <img
               src="/arrow.svg"
