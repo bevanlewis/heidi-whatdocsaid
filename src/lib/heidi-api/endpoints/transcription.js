@@ -8,11 +8,7 @@
  * @returns {Promise<Object>} Recording ID
  */
 export async function initializeTranscription(client, token, sessionId) {
-  return client.requestWithToken(
-    token,
-    `sessions/${sessionId}/restful-segment-transcription`,
-    "POST"
-  );
+    return client.requestWithToken(token, `sessions/${sessionId}/restful-segment-transcription`, "POST");
 }
 
 /**
@@ -25,23 +21,16 @@ export async function initializeTranscription(client, token, sessionId) {
  * @param {number} index - Audio chunk index
  * @returns {Promise<Object>} Success status
  */
-export async function uploadAudioChunk(
-  client,
-  token,
-  sessionId,
-  recordingId,
-  audioFile,
-  index
-) {
-  const formData = new FormData();
-  formData.append("file", audioFile);
-  formData.append("index", index.toString());
+export async function uploadAudioChunk(client, token, sessionId, recordingId, audioFile, index) {
+    const formData = new FormData();
+    formData.append("file", audioFile);
+    formData.append("index", index.toString());
 
-  return client.requestMultipart(
-    token,
-    `sessions/${sessionId}/restful-segment-transcription/${recordingId}:transcribe`,
-    formData
-  );
+    return client.requestMultipart(
+        token,
+        `sessions/${sessionId}/restful-segment-transcription/${recordingId}:transcribe`,
+        formData
+    );
 }
 
 /**
@@ -52,17 +41,12 @@ export async function uploadAudioChunk(
  * @param {string} recordingId - Recording ID
  * @returns {Promise<Object>} Success status
  */
-export async function finishTranscription(
-  client,
-  token,
-  sessionId,
-  recordingId
-) {
-  return client.requestWithToken(
-    token,
-    `sessions/${sessionId}/restful-segment-transcription/${recordingId}:finish`,
-    "POST"
-  );
+export async function finishTranscription(client, token, sessionId, recordingId) {
+    return client.requestWithToken(
+        token,
+        `sessions/${sessionId}/restful-segment-transcription/${recordingId}:finish`,
+        "POST"
+    );
 }
 
 /**
@@ -73,9 +57,5 @@ export async function finishTranscription(
  * @returns {Promise<Object>} Transcript text
  */
 export async function getTranscript(client, token, sessionId) {
-  return client.requestWithToken(
-    token,
-    `sessions/${sessionId}/transcript`,
-    "GET"
-  );
+    return client.requestWithToken(token, `sessions/${sessionId}/transcript`, "GET");
 }

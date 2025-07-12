@@ -129,12 +129,12 @@ export function useHeidiApi(apiKey) {
         [client, handleApiCall]
     );
 
-    const getTranscriptNoAuth = useCallback(
-        async (sessionId, thirdPartyInternalId, email) => {
-            const token = await getToken(email, thirdPartyInternalId);
+    const getTranscriptHeidiTestAuth = useCallback(
+        async (sessionId) => {
+            const token = await getToken("test@heidihealth.com", "123");
             return handleApiCall(() => getTranscript(client, token, sessionId));
         },
-        [client, handleApiCall]
+        [client, handleApiCall, getToken]
     );
 
     return {
@@ -156,6 +156,6 @@ export function useHeidiApi(apiKey) {
         getTemplates,
         generateNote,
         askHeidiAI,
-        getTranscriptNoAuth,
+        getTranscriptHeidiTestAuth,
     };
 }
