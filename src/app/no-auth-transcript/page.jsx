@@ -9,6 +9,7 @@ export default function NoAuthTranscript() {
     const heidiApi = useHeidiApi(apiKey);
 
     const [transcript, setTranscript] = useState("");
+    const [consultNote, setConsultNote] = useState("");
 
     // Get parameters from URL
     const searchParams = useSearchParams();
@@ -23,6 +24,9 @@ export default function NoAuthTranscript() {
 
             try {
                 const transcriptData = await heidiApi.getTranscriptHeidiTestAuth(sessionId);
+                const sessionDetail = await heidiApi.getConsultNoteHeidiTestAuth(sessionId);
+
+                setConsultNote(sessionDetail);
 
                 // Handle different possible response structures
                 const transcriptText =
@@ -56,6 +60,14 @@ export default function NoAuthTranscript() {
                     ) : (
                         <div className="text-center py-8">
                             <p className="text-gray-600">Loading transcript...</p>
+                        </div>
+                    )}
+                    {consultNote && (
+                        <div className="mt-6">
+                            <h2 className="text-lg font-semibold mb-3">Consultation Note</h2>
+                            <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                                <div className="text-gray-800 whitespace-pre-wrap">{consultNote}</div>
+                            </div>
                         </div>
                     )}
                 </div>

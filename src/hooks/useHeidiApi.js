@@ -137,6 +137,15 @@ export function useHeidiApi(apiKey) {
         [client, handleApiCall, getToken]
     );
 
+    const getConsultNoteHeidiTestAuth = useCallback(
+        async (sessionId) => {
+            const token = await getToken("test@heidihealth.com", "123");
+            const session_detail = await getSession(client, token, sessionId);
+            return handleApiCall(() => session_detail.session.consult_note.result);
+        },
+        [client, handleApiCall, getToken]
+    );
+
     return {
         // State
         token,
@@ -157,5 +166,6 @@ export function useHeidiApi(apiKey) {
         generateNote,
         askHeidiAI,
         getTranscriptHeidiTestAuth,
+        getConsultNoteHeidiTestAuth,
     };
 }
