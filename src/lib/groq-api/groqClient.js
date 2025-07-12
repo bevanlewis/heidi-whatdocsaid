@@ -1,14 +1,15 @@
 // src/lib/groq-api/groqClient.js
 
-// This function sends a prompt to the Groq API and returns the response.
+// This function sends a prompt or message array to the Groq API and returns the response.
 // It uses the fetch API to make HTTP requests.
 
-export async function askGroq(prompt) {
-  const systemInstruction =
-    "Summarize the following text in 100 words or less:";
-  const model = "llama-3.1-8b-instant";
-
-  // Get the API key from environment variables
+export async function askGroq(
+  prompt,
+  model = "llama-3.1-8b-instant",
+  systemInstruction = null,
+  messages = null
+) {
+  // Get the API key from environment variables (should be server-side only)
   const apiKey = process.env.GROQ_API_KEY;
 
   // Check if the API key is set
@@ -17,16 +18,20 @@ export async function askGroq(prompt) {
   }
 
   // Build the messages array
-  const messages = [];
-  if (systemInstruction) {
-    messages.push({ role: "system", content: systemInstruction });
+  let messagesArray = [];
+  if (Array.isArray(messages) && messages.length > 0) {
+    messagesArray = messages;
+  } else {
+    if (systemInstruction) {
+      messagesArray.push({ role: "system", content: systemInstruction });
+    }
+    messagesArray.push({ role: "user", content: prompt });
   }
-  messages.push({ role: "user", content: prompt });
 
   // Set up the request payload
   const payload = {
     model,
-    messages,
+    messages: messagesArray,
     max_tokens: 512, // Maximum number of tokens in the response
     temperature: 0.7, // Controls randomness: lower is more focused, higher is more creative
   };
