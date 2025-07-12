@@ -5,10 +5,26 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navItems = [
-  { name: "Home", icon: "/house.svg", href: "/" },
-  { name: "Referrals", icon: "/ref.svg", href: "/" },
-  { name: "Treatments", icon: "/pill.svg", href: "/" },
-  { name: "Appointments", icon: "/cal.svg", href: "/" },
+  {
+    name: "Home",
+    icon: "/house.svg",
+    href: "/?sessionId=109809741668977226983209560304378806042",
+  },
+  {
+    name: "Referrals",
+    icon: "/ref.svg",
+    href: "/?sessionId=13492367013098732992868300977265587593",
+  },
+  {
+    name: "Treatments",
+    icon: "/pill.svg",
+    href: "/?sessionId=11901873742259810244555103576895445913",
+  },
+  {
+    name: "Appointments",
+    icon: "/cal.svg",
+    href: "/?sessionId=145724014565595129429559506201071574120",
+  },
 ];
 
 const Sidebar = () => {
