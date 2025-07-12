@@ -188,7 +188,7 @@ const Summary = () => {
           "It's your personal guide, helping you easily track treatments, understand complex medical information, and stay connected with your care team."
         }
       </Text>
-      <Text fontWeight="bold" mt={4} mb={2} fontFamily="font-roboto">
+      <Text fontWeight="bold" mt={4} mb={2} className="font-roboto">
         Summary of your consult:
       </Text>
 
