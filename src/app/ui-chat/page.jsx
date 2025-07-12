@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useHeidiApi } from "../../hooks/useHeidiApi";
+import { useSearchParams } from "next/navigation";
 
 export default function UiChat() {
     const [selectedFile, setSelectedFile] = useState(null);
@@ -12,11 +13,16 @@ export default function UiChat() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [consultationNotes, setConsultationNotes] = useState("");
     const [noteTemplates, setNoteTemplates] = useState([]);
+    const [selectedTemplate, setSelectedTemplate] = useState(null);
+    const [email, setEmail] = useState("");
+    const [thirdPartyId, setThirdPartyId] = useState("");
+    const [showLoginForm, setShowLoginForm] = useState(false);
 
-    // Hardcoded session ID
-    const sessionId = "145247102438794386636596225015635472634";
+    // Get session ID from URL query parameter
+    const searchParams = useSearchParams();
+    const sessionId = searchParams.get("sessionId");
 
-    // Hardcoded authentication values
+    // Hardcoded authentication values for auto-fill
     const hardcodedEmail = "test@example.com";
     const hardcodedThirdPartyId = "test-user-123";
 
@@ -24,25 +30,33 @@ export default function UiChat() {
     const apiKey = process.env.NEXT_PUBLIC_HEIDI_API_KEY;
     const heidiApi = useHeidiApi(apiKey);
 
-    // Automatic authentication on component mount
+    // Auto-fill login form when component mounts
     useEffect(() => {
-        const autoAuthenticate = async () => {
-            if (apiKey && !heidiApi.isAuthenticated) {
-                try {
-                    setStatus("Authenticating automatically...");
-                    const authResult = await heidiApi.authenticate(hardcodedEmail, hardcodedThirdPartyId);
-                    console.log("Authentication result:", authResult);
-                    setIsAuthenticated(true);
-                    setStatus("Authentication successful!");
-                } catch (error) {
-                    console.error("Authentication error:", error);
-                    setStatus(`Authentication failed: ${error.message}`);
-                }
-            }
-        };
+        if (sessionId) {
+            setEmail(hardcodedEmail);
+            setThirdPartyId(hardcodedThirdPartyId);
+            setShowLoginForm(true);
+        }
+    }, [sessionId]);
 
-        autoAuthenticate();
-    }, [apiKey, heidiApi, isAuthenticated]);
+    const handleLogin = async () => {
+        if (!email || !thirdPartyId) {
+            setStatus("Please fill in both email and third party ID");
+            return;
+        }
+
+        try {
+            setStatus("Authenticating...");
+            const authResult = await heidiApi.authenticate(email, thirdPartyId);
+            console.log("Authentication result:", authResult);
+            setIsAuthenticated(true);
+            setShowLoginForm(false);
+            setStatus("Authentication successful!");
+        } catch (error) {
+            console.error("Authentication error:", error);
+            setStatus(`Authentication failed: ${error.message}`);
+        }
+    };
 
     // Retrieve transcript after authentication is complete
     useEffect(() => {
@@ -113,15 +127,15 @@ export default function UiChat() {
     };
 
     const handleGenerateNote = async () => {
-        if (!noteTemplates.length) {
-            setStatus("Please get templates first");
+        if (!selectedTemplate) {
+            setStatus("Please select a template first");
             return;
         }
 
         try {
             setStatus("Generating consultation note...");
             const note = await heidiApi.generateNote(sessionId, {
-                template_id: noteTemplates[0].id || noteTemplates[0]._id,
+                template_id: selectedTemplate.id || selectedTemplate._id,
                 voice_style: "GOLDILOCKS",
                 brain: "LEFT",
             });
@@ -210,14 +224,66 @@ export default function UiChat() {
                     <h2 className="text-xl font-semibold mb-4">Session Information</h2>
                     <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
                         <p className="text-sm text-blue-800">
-                            <strong>Session ID:</strong> {sessionId}
+                            <strong>Session ID:</strong> {sessionId || "No session ID provided"}
                         </p>
                         <p className="text-sm text-blue-800 mt-1">
                             <strong>Authentication:</strong>{" "}
-                            {isAuthenticated ? "✅ Authenticated" : "⏳ Authenticating..."}
+                            {isAuthenticated ? "✅ Authenticated" : "❌ Not authenticated"}
                         </p>
                     </div>
                 </div>
+
+                {/* Login Form */}
+                {showLoginForm && !isAuthenticated && (
+                    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                        <h2 className="text-xl font-semibold mb-4">Authentication Required</h2>
+                        <p className="text-sm text-gray-600 mb-4">
+                            Please authenticate to access session: <strong>{sessionId}</strong>
+                        </p>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                                    placeholder="Enter your email"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Third Party Internal ID
+                                </label>
+                                <input
+                                    type="text"
+                                    value={thirdPartyId}
+                                    onChange={(e) => setThirdPartyId(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                                    placeholder="Enter EHR User UID"
+                                />
+                            </div>
+                            <button
+                                onClick={handleLogin}
+                                disabled={heidiApi.loading || !email || !thirdPartyId}
+                                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            >
+                                {heidiApi.loading ? "Authenticating..." : "Authenticate"}
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* No Session ID Message */}
+                {!sessionId && (
+                    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                        <h2 className="text-xl font-semibold mb-4 text-red-600">No Session ID</h2>
+                        <p className="text-sm text-gray-600">
+                            Please provide a session ID in the URL query parameter:{" "}
+                            <code>?sessionId=YOUR_SESSION_ID</code>
+                        </p>
+                    </div>
+                )}
 
                 {/* Audio Upload Section */}
                 {isAuthenticated && (
@@ -232,7 +298,7 @@ export default function UiChat() {
                                     type="file"
                                     accept="audio/*"
                                     onChange={handleFileSelect}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                                 />
                             </div>
                             {selectedFile && (
@@ -302,7 +368,7 @@ export default function UiChat() {
                                 </button>
                                 <button
                                     onClick={handleGenerateNote}
-                                    disabled={heidiApi.loading || !noteTemplates.length}
+                                    disabled={heidiApi.loading || !selectedTemplate}
                                     className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                                 >
                                     {heidiApi.loading ? "Generating..." : "Generate Note"}
@@ -310,13 +376,52 @@ export default function UiChat() {
                             </div>
 
                             {noteTemplates.length > 0 && (
-                                <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-                                    <p className="text-sm text-blue-800">
-                                        <strong>Templates Available:</strong> {noteTemplates.length}
-                                    </p>
-                                    <p className="text-sm text-blue-600 mt-1">
-                                        Using template: {noteTemplates[0].name || noteTemplates[0].title || "Default"}
-                                    </p>
+                                <div className="space-y-3">
+                                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                                        <p className="text-sm text-blue-800">
+                                            <strong>Templates Available:</strong> {noteTemplates.length}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Select Template
+                                        </label>
+                                        <select
+                                            value={selectedTemplate ? selectedTemplate.id || selectedTemplate._id : ""}
+                                            onChange={(e) => {
+                                                const template = noteTemplates.find(
+                                                    (t) => (t.id || t._id) === e.target.value
+                                                );
+                                                setSelectedTemplate(template);
+                                            }}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                                        >
+                                            <option value="">Choose a template...</option>
+                                            {noteTemplates.map((template, index) => (
+                                                <option
+                                                    key={template.id || template._id || index}
+                                                    value={template.id || template._id}
+                                                >
+                                                    {template.name || template.title || `Template ${index + 1}`}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {selectedTemplate && (
+                                        <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                                            <p className="text-sm text-green-800">
+                                                <strong>Selected Template:</strong>{" "}
+                                                {selectedTemplate.name || selectedTemplate.title || "Template"}
+                                            </p>
+                                            {selectedTemplate.description && (
+                                                <p className="text-sm text-green-600 mt-1">
+                                                    {selectedTemplate.description}
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
