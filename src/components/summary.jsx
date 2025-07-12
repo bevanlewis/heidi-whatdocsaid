@@ -188,12 +188,12 @@ const Summary = () => {
                 <Text
                   as="li"
                   key={idx}
-                  fontFamily="Roboto"
                   color="#020817"
                   fontSize="1rem"
                   fontWeight={400}
                   mb={1}
                   style={{ listStyleType: "disc" }}
+                  className="font-roboto"
                 >
                   {msg.trim()}
                 </Text>
