@@ -175,9 +175,9 @@ const Summary = () => {
 
       <Box bg="#FFFFFF" borderRadius="lg" p={4} mb={4} position="relative">
         {/* Show loading or error */}
-        {loading && <Text fontFamily="Roboto">Loading summary...</Text>}
+        {loading && <Text className="font-roboto">Loading summary...</Text>}
         {error && (
-          <Text color="red.500" fontFamily="Roboto">
+          <Text color="red.500" className="font-roboto">
             {error}
           </Text>
         )}
