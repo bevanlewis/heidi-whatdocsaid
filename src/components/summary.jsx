@@ -99,7 +99,7 @@ const Summary = () => {
       4. Use layman's terms. When explaining medical terms (e.g. "troponin", "pericarditis"), keep explanations brief and accessible to a general audience.
       5. Reiterate what the doctor said clearly and respectfully. You may paraphrase or summarise, but never fabricate.
       6. If medication, dosage, or next steps were mentioned, state them clearly. Include dosage and timing only if explicitly noted in the transcript.
-      7. Always include a short disclaimer in your responses: "This information is based only on your consultation. If your symptoms change or you need further support, please follow up with your doctor."
+      7. Include a short disclaimer in your response if you are unsure or confused: "This information is based only on your consultation. If your symptoms change or you need further support, please follow up with your doctor."
       8. Return the response in normal text format.
       9. Limit the response to 300 words.
 
