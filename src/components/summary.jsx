@@ -49,6 +49,7 @@ const Summary = () => {
           body: JSON.stringify({
             prompt: transcript,
             model: "llama-3.1-8b-instant",
+            temperature: 0.1, // Controls randomness: lower is more focused, higher is more creative
             systemInstruction:
               "Summarize the following medical consult note in bullet points in a way that is easy to understand for a person without a medical background. The summary will be read by the patient so do not mention them in the third person, with each bullet point separated by a #. Do not include any other text or formatting. Make it only 5 bullet points long.",
           }),
@@ -110,6 +111,7 @@ const Summary = () => {
         body: JSON.stringify({
           messages: chatHistory,
           model: "llama-3.1-8b-instant",
+          temperature: 0.1, // Controls randomness: lower is more focused, higher is more creative
         }),
       });
       const data = await res.json();
